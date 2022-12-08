@@ -12,7 +12,7 @@ from gym.spaces import MultiBinary, Box
 from stable_baselines3.common.vec_env import DummyVecEnv, VecFrameStack, SubprocVecEnv
 from stable_baselines3.common.monitor import Monitor
 # env in parallel
-# from retrowrapper import RetroWrapper # No need
+from retrowrapper import RetroWrapper  # No need
 # vec in parallel
 from stable_baselines3.common.env_util import make_vec_env
 # Constant used for the game
@@ -22,7 +22,7 @@ MAX_ROUND_SEC = 99
 
 
 class StreetFighter(Env):
-    def __init__(self, obs_mode=0):
+    def __init__(self, obs_mode=0, use_retro_wrapper=0):
         super().__init__()
         # Specify action space and observation space
         # if obs_mode = 0 then difference
@@ -35,8 +35,10 @@ class StreetFighter(Env):
             self.observation_space = Box(low=0, high=255, shape=(84, 84, 2), dtype=np.uint8)
         self.action_space = MultiBinary(12)
         # Startup and instance of the game
-        self.game = retro.make(game='StreetFighterIISpecialChampionEdition-Genesis', use_restricted_actions=retro.Actions.FILTERED)
-        # self.game = RetroWrapper(game='StreetFighterIISpecialChampionEdition-Genesis', use_restricted_actions=retro.Actions.FILTERED) # No need
+        if use_retro_wrapper:
+            self.game = RetroWrapper(game='StreetFighterIISpecialChampionEdition-Genesis', use_restricted_actions=retro.Actions.FILTERED)
+        else:
+            self.game = retro.make(game='StreetFighterIISpecialChampionEdition-Genesis', use_restricted_actions=retro.Actions.FILTERED)
 
     def reset(self):
         # Return the first frame
@@ -191,8 +193,8 @@ class Frameskip(Wrapper):
         return obs, total_rew, done, info
 
 
-def StreetFighterEnv(obs_mode=2, skip=4):
-    env = StreetFighter(obs_mode)
+def StreetFighterEnv(obs_mode=2, skip=4, use_retro_wrapper=0):
+    env = StreetFighter(obs_mode, use_retro_wrapper)
     env = Frameskip(env, skip)
     env = Monitor(env)
     return env
@@ -205,9 +207,15 @@ def StreetFighterRenderEnv(obs_mode=2, skip=4, stack=10):
     return env
 
 
-def create_env(obs_mode=2, skip=4, stack=10, n_envs=15):
+def create_env(obs_mode=2, skip=4, stack=10, n_envs=15, use_retro_wrapper=0):
     def wrap_env():
-        return StreetFighterEnv(obs_mode, skip)
-    env = make_vec_env(wrap_env, n_envs=n_envs, vec_env_cls=SubprocVecEnv)
+        return StreetFighterEnv(obs_mode, skip, use_retro_wrapper)
+    # env = make_vec_env(wrap_env, n_envs=n_envs, vec_env_cls=SubprocVecEnv)
+    print(f'Training on {n_envs} environments')
+    if n_envs > 1:
+        env = make_vec_env(wrap_env, n_envs=n_envs, vec_env_cls=DummyVecEnv if use_retro_wrapper else SubprocVecEnv)
+    else:
+        env = wrap_env()
+        env = DummyVecEnv([lambda: env])
     env = VecFrameStack(env, stack, channels_order='last')
     return env

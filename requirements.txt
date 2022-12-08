@@ -3,3 +3,4 @@ opencv-python
 gym
 gym-retro
 stable-baselines3[extra]
+moviepy
