@@ -1,10 +1,9 @@
-from environment import create_env, StreetFighterRenderEnv
+from environment import  StreetFighterRenderEnv
 from stable_baselines3 import PPO
 import time
 
 
 def display_game(model_path=None, n_episodes=2, obs_mode=2, skip=4, stack=40):
-    # env = create_env(obs_mode, skip, stack)
     env = StreetFighterRenderEnv(obs_mode, skip, stack)
     if model_path is not None:
         model = PPO.load(model_path)

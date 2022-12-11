@@ -12,7 +12,6 @@ import os
 import glob
 
 
-
 class VideoRecorderCallback(BaseCallback):
     def __init__(self, eval_env: gym.Env, render_freq: int, n_eval_episodes: int = 1, deterministic: bool = True):
         """
@@ -63,7 +62,7 @@ class TrainAndLoggingCallback(BaseCallback):
     def __init__(self, check_freq, save_path, verbose=1):
         super(TrainAndLoggingCallback, self).__init__(verbose)
         self.check_freq = check_freq
-        self.save_path = os.path.join(save_path, f'checkpoints_{get_latest_run_id(save_path)+1}')
+        self.save_path = os.path.join(save_path, f'checkpoints_{get_latest_run_id(save_path,"checkpoints")+1}')
         if not os.path.exists(self.save_path):
             os.makedirs(self.save_path)
 
@@ -78,8 +77,6 @@ class TrainAndLoggingCallback(BaseCallback):
         return True
 
 
-
-
 class HParamCallback(BaseCallback):
     def __init__(self, args):
         """
@@ -90,11 +87,11 @@ class HParamCallback(BaseCallback):
 
     def _on_training_start(self) -> None:
         info = self.model.__dict__
-        model_params = flatten_dict(dict(filter(lambda elem: isinstance(elem[1], numbers.Number) or isinstance(elem[1], str) or isinstance(elem[1], dict), info.items())))
+        model_params = flatten_dict(dict(filter(lambda elem: isinstance(elem[1], numbers.Number) or isinstance(elem[1], str) or isinstance(elem[1], dict) and elem[0] not in ['_last_obs', 'observation_space'] and not elem[0].startswith("_"), info.items())))
 
         hparam_dict = {
             "algorithm": self.model.__class__.__name__,
-            **model_params, **info
+            **model_params, **self.args
         }
         # define the metrics that will appear in the `HPARAMS` Tensorboard tab by referencing their tag
         # Tensorbaord will find & display metrics from the `SCALARS` tab
@@ -110,7 +107,6 @@ class HParamCallback(BaseCallback):
 
     def _on_step(self) -> bool:
         return True
-
 
 
 def create_callbacks(check_freq=10000, checkpoint_dir='./checkpoints/', obs_mode=2, skip=4, stack=20, **kwargs):

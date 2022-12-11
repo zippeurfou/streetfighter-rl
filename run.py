@@ -4,18 +4,16 @@ from callbacks import create_callbacks
 # parse the args
 import argparse
 
-
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--obs_mode', default=2, type=int, help='Training observation mode, 0 = gray obs, 1 = diff gray obs, 2 = concate of 1 and 2')
-    parser.add_argument('--stack', default=20, type=int, help='Number of frame to stack for the model')
+    parser.add_argument('--stack', default=10, type=int, help='Number of frame to stack for the model')
     parser.add_argument('--skip', default=4, type=int, help='Number of frame to skip')
-    parser.add_argument('--n_envs', default=15, type=int, help='Number of frame to skip')
+    parser.add_argument('--n_envs', default=6, type=int, help='Number of frame to skip')
     parser.add_argument('--total_timesteps', default=20_000_000, type=int, help='Number of frame to skip')
     parser.add_argument('--use_retro_wrapper', default=0, type=int, help='Use or not retrowrapper. This is not useful for n_envs=1 and should be set to false in this case. Otherwise decide to use retrowrapper + DummyVecEnv or SubprocVecEnv. Here only for debug speed.')
-    parser.add_argument('--check_freq', default=10_000, type=int, help='Frequency of callback (eg. saving, eval model) to use.')
+    parser.add_argument('--check_freq', default=5_000, type=int, help='Frequency of callback (eg. saving, eval model) to use.')
     parser.add_argument('--checkpoint_dir', default='./checkpoints/', type=str, help='What directory to save the checkpoints to')
-
     args = parser.parse_args()
     env = create_env(**vars(args))
     callbacks = create_callbacks(**vars(args))
