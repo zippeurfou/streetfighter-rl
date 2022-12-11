@@ -365,9 +365,9 @@ class Frameskip(Wrapper):
         return obs, total_rew, done, info
 
 
-def StreetFighterEnv(obs_mode=2, skip=4, use_retro_wrapper=0):
+def StreetFighterEnv(obs_mode=2, skip=4, use_retro_wrapper=0, hit_strategy=2):
     init_game()
-    env = StreetFighter(obs_mode, use_retro_wrapper)
+    env = StreetFighter(obs_mode, use_retro_wrapper, hit_strategy=2)
     env = Frameskip(env, skip)
     env = Monitor(env)
     return env
@@ -379,16 +379,16 @@ def init_game():
     )
 
 
-def StreetFighterRenderEnv(obs_mode=2, skip=4, stack=10):
-    env = StreetFighterEnv(obs_mode, skip)
+def StreetFighterRenderEnv(obs_mode=2, skip=4, stack=10, hit_strategy=2):
+    env = StreetFighterEnv(obs_mode, skip, hit_strategy=2)
     env = DummyVecEnv([lambda: env])
     env = VecFrameStack(env, stack, channels_order='last')
     return env
 
 
-def create_env(obs_mode=2, skip=4, stack=10, n_envs=15, use_retro_wrapper=0, **kwargs):
+def create_env(obs_mode=2, skip=4, stack=10, n_envs=15, use_retro_wrapper=0, hit_strategy=2, **kwargs):
     def wrap_env():
-        return StreetFighterEnv(obs_mode, skip, use_retro_wrapper)
+        return StreetFighterEnv(obs_mode, skip, use_retro_wrapper, hit_strategy=2)
     print(f'Training on {n_envs} environments')
     if n_envs > 1:
         env = make_vec_env(wrap_env, n_envs=n_envs, vec_env_cls=DummyVecEnv if use_retro_wrapper else SubprocVecEnv)

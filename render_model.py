@@ -1,4 +1,4 @@
-from environment import  StreetFighterRenderEnv
+from environment import StreetFighterRenderEnv
 from stable_baselines3 import PPO
 import time
 
@@ -17,8 +17,9 @@ def display_game(model_path=None, n_episodes=2, obs_mode=2, skip=4, stack=40):
             if model is not None:
                 action, _ = model.predict(obs)
             else:
-                action = env.action_space.sample()
+                action = [env.action_space.sample()]
             obs, reward, done, info = env.step(action)
+            print(reward, done, info)
             env.render()
             total_reward += reward
             time.sleep(0.01)
