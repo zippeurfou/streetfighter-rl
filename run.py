@@ -10,7 +10,7 @@ if __name__ == "__main__":
     parser.add_argument('--stack', default=10, type=int, help='Number of frame to stack for the model')
     parser.add_argument('--skip', default=0, type=int, help='Number of frame to skip')
     parser.add_argument('--n_envs', default=6, type=int, help='Number of env to train on')
-    parser.add_argument('--total_timesteps', default=20_000_000, type=int, help='Number of frame to skip')
+    parser.add_argument('--total_timesteps', default=20_000_000, type=int, help='Number of timestamp to do')
     parser.add_argument('--check_freq', default=5_000, type=int, help='Frequency of callback (eg. saving, eval model) to use.')
     parser.add_argument('--checkpoint_dir', default='./checkpoints/', type=str, help='What directory to save the checkpoints to')
     parser.add_argument('--scenario', default='scenario', type=str, help='What scenario to start with')
