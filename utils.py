@@ -5,7 +5,3 @@ def flatten_dict(dd, prefix=''):
             for k, v in flatten_dict(vv, kk).items()
             } if isinstance(dd, dict) else {prefix: dd}
 
-
-a = 1
-b = 2
-
